@@ -1,5 +1,5 @@
-import { TokenSource, TokenSourceBase, TokenSourceResponseObject } from "livekit-client";
-import { createContext, useContext, useMemo, useState } from "react";
+import { Participant, TokenSource, TokenSourceBase, TokenSourceResponseObject } from "livekit-client";
+import { createContext, use, useContext, useMemo, useState } from "react";
 import { SessionProvider, useSession } from "@livekit/components-react";
 
 interface TokenResponseProps {
@@ -23,22 +23,24 @@ const hardcodedUrl = "";
 const hardcodedToken = "";
 
 // Fetch LiveKit token from radium backend
-const tokenResponse = await (async () => {
+const fetchToken = async () => {
 	try {
-		const response = await fetch("http://34.42.130.100:3004/getToken", {
+		const response = await fetch(process.env.EXPO_PUBLIC_TOKEN_SERVER_URL, {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",
 			},
 		});
 
+		// Parse reponse
 		const data = await response.json();
-		console.log("Token:", data);
 		return data satisfies TokenResponseProps;
 	} catch (error) {
 		console.error("Error fetching token:", error);
 	}
-})();
+};
+
+const tokenPromise = fetchToken().catch(() => null);
 
 interface ConnectionContextType {
 	isConnectionActive: boolean;
@@ -66,14 +68,17 @@ interface ConnectionProviderProps {
 
 export function ConnectionProvider({ children }: ConnectionProviderProps) {
 	const [isConnectionActive, setIsConnectionActive] = useState(false);
+	const tokenResponse = use(tokenPromise);
+	const serverUrl = tokenResponse?.url || hardcodedUrl;
+	const participantToken = tokenResponse?.token || hardcodedToken;
 
 	const tokenSource = useMemo(() => {
 		if (sandboxID) {
 			return TokenSource.sandboxTokenServer(sandboxID);
 		} else {
 			return TokenSource.literal({
-				serverUrl: tokenResponse?.token || hardcodedUrl,
-				participantToken: tokenResponse?.url || hardcodedToken,
+				serverUrl,
+				participantToken,
 			} satisfies TokenSourceResponseObject);
 		}
 	}, [sandboxID, hardcodedUrl, hardcodedToken]);
