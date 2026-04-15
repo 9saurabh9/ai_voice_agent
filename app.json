@@ -11,7 +11,12 @@
 		"ios": {
 			"supportsTablet": true,
 			"bitcode": false,
-			"bundleIdentifier": "io.livekit.voiceassistantreactnative"
+			"bundleIdentifier": "io.livekit.voiceassistantreactnative",
+			"infoPlist": {
+				"NSAppTransportSecurity": {
+					"NSAllowsArbitraryLoads": true
+				}
+			}
 		},
 		"android": {
 			"adaptiveIcon": {

@@ -1,5 +1,5 @@
 import { Participant, TokenSource, TokenSourceBase, TokenSourceResponseObject } from "livekit-client";
-import { createContext, use, useContext, useMemo, useState } from "react";
+import { createContext, use, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { SessionProvider, useSession } from "@livekit/components-react";
 
 interface TokenResponseProps {
@@ -68,7 +68,8 @@ interface ConnectionProviderProps {
 
 export function ConnectionProvider({ children }: ConnectionProviderProps) {
 	const [isConnectionActive, setIsConnectionActive] = useState(false);
-	const tokenResponse = use(tokenPromise);
+	// const tokenResponse = use(tokenPromise);
+	const [tokenResponse, setTokenResponse] = useState<TokenResponseProps | null>(null);
 	const serverUrl = tokenResponse?.url || hardcodedUrl;
 	const participantToken = tokenResponse?.token || hardcodedToken;
 
@@ -81,23 +82,40 @@ export function ConnectionProvider({ children }: ConnectionProviderProps) {
 				participantToken,
 			} satisfies TokenSourceResponseObject);
 		}
-	}, [sandboxID, hardcodedUrl, hardcodedToken]);
+	}, [serverUrl, participantToken]);
 
 	const session = useSession(tokenSource, agentName ? { agentName } : undefined);
 
 	const { start: startSession, end: endSession } = session;
 
+	// Start session only after tokenResponse state has settled
+	useEffect(() => {
+		if (isConnectionActive && tokenResponse) {
+			startSession();
+		}
+	}, [tokenResponse, isConnectionActive]); // fires after re-render with new token
+
+	const connect = useCallback(async () => {
+		setIsConnectionActive(true); // useEffect above then calls startSession
+		const data = await fetchToken();
+		if (!data) {
+			setIsConnectionActive(false);
+			return;
+		}
+		setTokenResponse(data); // triggers re-render → tokenSource updates
+	}, []);
+
+	const disconnect = useCallback(() => {
+		setIsConnectionActive(false);
+		setTokenResponse(null);
+		endSession();
+	}, [endSession]);
+
 	const value = useMemo(() => {
 		return {
 			isConnectionActive,
-			connect: () => {
-				setIsConnectionActive(true);
-				startSession();
-			},
-			disconnect: () => {
-				setIsConnectionActive(false);
-				endSession();
-			},
+			connect,
+			disconnect,
 		};
 	}, [startSession, endSession, isConnectionActive]);
 
