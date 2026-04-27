@@ -18,6 +18,7 @@ import AgentVisualization from "./ui/AgentVisualization";
 import { Track } from "livekit-client";
 import { TrackReference, useSessionMessages, useTrackToggle } from "@livekit/components-react";
 import { useConnection } from "@/hooks/useConnection";
+import { useKeepAwake } from "expo-keep-awake";
 
 export default function AssistantScreen() {
 	// Start the audio session first.
@@ -40,6 +41,9 @@ export default function AssistantScreen() {
 }
 
 const RoomView = () => {
+	// Expo hook to keep screen awake
+	useKeepAwake();
+
 	const router = useRouter();
 	const connection = useConnection();
 	const room = useRoomContext();
@@ -189,7 +193,7 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 	},
 	spacer: {
-		height: "24%",
+		height: "15%",
 	},
 	logContainer: {
 		width: "100%",
@@ -225,7 +229,7 @@ const expandedAgentHeight = 1;
 const expandedLocalWidth = 0.3;
 const expandedLocalHeight = 0.2;
 const collapsedWidth = 0.3;
-const collapsedHeight = 0.2;
+const collapsedHeight = 0.12;
 
 const createAnimConfig = (toValue: any) => {
 	return {

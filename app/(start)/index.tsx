@@ -24,8 +24,8 @@ export default function StartScreen() {
 
 	return (
 		<View style={styles.container}>
-			<Image style={styles.logo} source={require("../../assets/images/start-logo.png")} />
-			<Text style={styles.text}>Chat live with radium voice AI agent</Text>
+			{/* <Image style={styles.logo} source={require("../../assets/images/start-logo.png")} />
+			<Text style={styles.text}>Chat live with radium voice AI agent</Text> */}
 
 			<TouchableOpacity
 				onPress={() => {
@@ -36,11 +36,25 @@ export default function StartScreen() {
 				disabled={isConnectionActive} // Disable button while loading
 			>
 				{isConnectionActive ? (
-					<ActivityIndicator size="small" color="#ffffff" style={styles.activityIndicator} />
-				) : undefined}
-
-				<Text style={styles.buttonText}>{connectText}</Text>
+					<ActivityIndicator size="large" color="#ffffff" style={styles.activityIndicator} />
+				) : (
+					<Image style={styles.logo} source={require("../../assets/images/start-logo.png")} />
+				)}
 			</TouchableOpacity>
+
+			<Text style={styles.buttonText}>{connectText}</Text>
+			<Text
+				style={{
+					...styles.buttonText,
+					fontWeight: 300,
+					letterSpacing: 0,
+					fontSize: 12,
+					marginTop: 10,
+					color: "#e2e2e2",
+				}}
+			>
+				Tap to start a conversation
+			</Text>
 		</View>
 	);
 }
@@ -54,26 +68,31 @@ const styles = StyleSheet.create({
 	logo: {
 		width: 59,
 		height: 56,
-		marginBottom: 16,
+		// marginBottom: 16,
 	},
 	text: {
 		color: "#ffffff",
 		marginBottom: 24,
 	},
 	activityIndicator: {
-		marginEnd: 8,
+		// marginEnd: 8,
+		width: 59,
+		height: 56,
 	},
 	button: {
 		flexDirection: "row",
 		backgroundColor: "#002CF2",
-		paddingVertical: 12,
-		paddingHorizontal: 12,
-		borderRadius: 24,
+		padding: 30,
+		borderRadius: 999,
 		alignItems: "center",
 		justifyContent: "center",
-		minWidth: 200, // Ensure button has a minimum width when loading
+		// minWidth: 10, // Ensure button has a minimum width when loading
 	},
 	buttonText: {
+		letterSpacing: 0.5,
+		marginTop: 25,
+		fontSize: 20,
 		color: "#ffffff",
+		fontWeight: 600,
 	},
 });

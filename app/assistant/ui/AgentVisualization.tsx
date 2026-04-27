@@ -11,7 +11,7 @@ type AgentVisualizationProps = {
 
 type AgentState = "listening" | "thinking" | "speaking" | "idle" | "connecting";
 
-const barSize = 0.1;
+const barSize = 0.15;
 
 const barColor: Record<AgentState, string> = {
 	listening: "#1D9E75",
@@ -47,8 +47,9 @@ export default function AgentVisualization({ style, isPaused }: AgentVisualizati
 	const layoutCallback = useCallback((event: LayoutChangeEvent) => {
 		const { x, y, width, height } = event.nativeEvent.layout;
 		console.log(x, y, width, height);
-		setBarWidth(barSize * height);
-		setBarBorderRadius(barSize * height);
+		const size = Math.max(2, height * 0.06);
+		setBarWidth(size);
+		setBarBorderRadius(size);
 	}, []);
 
 	let videoView = cameraTrack ? <VideoTrack trackRef={cameraTrack} style={styles.videoTrack} /> : null;
@@ -91,8 +92,9 @@ const styles = StyleSheet.create({
 		zIndex: 0,
 	},
 	barVisualizer: {
-		width: "100%",
-		height: "100%",
+		width: "45%",
+		alignSelf: "center",
+		height: "40%",
 	},
 	buttonText: {
 		color: "#ffffff",
